@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Snake Game Ultimate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+  body {
+    background: #020617;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+
+  canvas {
+    background: black;
+    border: 3px solid #22c55e;
+    margin-top: 10px;
+    touch-action: none;
+  }
+
+  button, select {
+    padding: 8px 14px;
+    margin: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 6px;
+    border: none;
+  }
+
+  .controls button {
+    width: 60px;
+    height: 60px;
+    font-size: 22px;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>🐍 Snake Game Ultimate</h1>
+
+<p>
+Score: <span id="score">0</span> |
+High: <span id="highScore">0</span>
+</p>
+
+<button onclick="startGame()">Restart</button>
+<button onclick="toggleAI()">🤖 AI</button>
+
+<select onchange="setTheme(this.value)">
+  <option value="classic">Classic</option>
+  <option value="neon">Neon</option>
+  <option value="dark">Dark</option>
+</select>
+
+<br>
+<canvas id="game" width="400" height="400"></canvas>
+
+<div class="controls">
+  <div><button onclick="setDir('UP')">⬆</button></div>
+  <div>
+    <button onclick="setDir('LEFT')">⬅</button>
+    <button onclick="setDir('DOWN')">⬇</button>
+    <button onclick="setDir('RIGHT')">➡</button>
+  </div>
+</div>
+
+<!-- Sounds -->
+<audio id="eatSound" src="https://actions.google.com/sounds/v1/cartoon/pop.ogg"></audio>
+<audio id="loseSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+const box = 20;
+
+let snake, food, direction, score, speed, game;
+let aiMode = false;
+
+const eatSound = document.getElementById("eatSound");
+const loseSound = document.getElementById("loseSound");
+
+const scoreEl = document.getElementById("score");
+const highScoreEl = document.getElementById("highScore");
+
+highScoreEl.textContent = localStorage.getItem("snakeHigh") || 0;
+
+const themes = {
+  classic: { snake: "#22c55e", bg: "black" },
+  neon: { snake: "#22d3ee", bg: "#020617" },
+  dark: { snake: "#f97316", bg: "#020617" }
+};
+
+let theme = themes.classic;
+
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowUp") setDir("UP");
+  if (e.key === "ArrowDown") setDir("DOWN");
+  if (e.key === "ArrowLeft") setDir("LEFT");
+  if (e.key === "ArrowRight") setDir("RIGHT");
+});
+
+function setTheme(name) {
+  theme = themes[name];
+  canvas.style.background = theme.bg;
+}
+
+function setDir(dir) {
+  if (
+    (dir === "LEFT" && direction !== "RIGHT") ||
+    (dir === "RIGHT" && direction !== "LEFT") ||
+    (dir === "UP" && direction !== "DOWN") ||
+    (dir === "DOWN" && direction !== "UP")
+  ) direction = dir;
+}
+
+function toggleAI() {
+  aiMode = !aiMode;
+}
+
+function startGame() {
+  clearInterval(game);
+  snake = [{ x: 200, y: 200 }];
+  direction = "RIGHT";
+  score = 0;
+  speed = 120;
+  food = randomFood();
+  scoreEl.textContent = score;
+  game = setInterval(draw, speed);
+}
+
+function randomFood() {
+  return {
+    x: Math.floor(Math.random() * 20) * box,
+    y: Math.floor(Math.random() * 20) * box
+  };
+}
+
+function aiMove() {
+  const head = snake[0];
+  if (food.x > head.x) direction = "RIGHT";
+  else if (food.x < head.x) direction = "LEFT";
+  else if (food.y > head.y) direction = "DOWN";
+  else if (food.y < head.y) direction = "UP";
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  snake.forEach((s, i) => {
+    ctx.fillStyle = i === 0 ? theme.snake : "#16a34a";
+    ctx.fillRect(s.x, s.y, box, box);
+  });
+
+  ctx.fillStyle = "red";
+  ctx.fillRect(food.x, food.y, box, box);
+
+  if (aiMode) aiMove();
+
+  let head = { ...snake[0] };
+  if (direction === "LEFT") head.x -= box;
+  if (direction === "RIGHT") head.x += box;
+  if (direction === "UP") head.y -= box;
+  if (direction === "DOWN") head.y += box;
+
+  if (
+    head.x < 0 || head.y < 0 ||
+    head.x >= canvas.width || head.y >= canvas.height ||
+    snake.some(s => s.x === head.x && s.y === head.y)
+  ) {
+    endGame();
+    return;
+  }
+
+  if (head.x === food.x && head.y === food.y) {
+    eatSound.play();
+    score++;
+    scoreEl.textContent = score;
+    food = randomFood();
+    speed = Math.max(50, speed - 4);
+    clearInterval(game);
+    game = setInterval(draw, speed);
+  } else {
+    snake.pop();
+  }
+
+  snake.unshift(head);
+}
+
+function endGame() {
+  clearInterval(game);
+  loseSound.play();
+  const high = Math.max(score, localStorage.getItem("snakeHigh") || 0);
+  localStorage.setItem("snakeHigh", high);
+  highScoreEl.textContent = high;
+  alert("Game Over! Score: " + score);
+}
+
+startGame();
+</script>
+
+</body>
+</html>
