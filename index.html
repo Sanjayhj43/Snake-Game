@@ -15,28 +15,55 @@
     color: white;
     font-family: Arial, sans-serif;
     text-align: center;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1 {
+    margin: 12px 0 6px;
+  }
+
+  p {
+    margin: 6px 0;
   }
 
   canvas {
     background: black;
     border: 3px solid #22c55e;
-    margin-top: 10px;
+    margin: 0;
     touch-action: none;
   }
 
   button, select {
     padding: 8px 14px;
-    margin: 6px;
+    margin: 4px;
     font-size: 14px;
     cursor: pointer;
     border-radius: 6px;
     border: none;
   }
 
+  .game-layout {
+    display: flex;
+    justify-content: center;
+    margin: 8px auto;
+  }
+
+  .controls {
+    margin-top: 6px;
+  }
+
   .controls button {
     width: 60px;
     height: 60px;
     font-size: 22px;
+  }
+
+  .footer-text {
+    max-width: 600px;
+    margin: 14px auto;
+    font-size: 14px;
+    color: #cbd5f5;
   }
 </style>
 </head>
@@ -54,28 +81,27 @@ High: <span id="highScore">0</span>
   <button>☕ Enjoying the game? Support me</button>
 </a>
 
-<br>
+<div>
+  <button onclick="startGame()">Restart</button>
+  <button onclick="toggleAI()">🤖 AI</button>
 
-<button onclick="startGame()">Restart</button>
-<button onclick="toggleAI()">🤖 AI</button>
-
-<select onchange="setTheme(this.value)">
-  <option value="classic">Classic</option>
-  <option value="neon">Neon</option>
-  <option value="dark">Dark</option>
-</select>
-
-<!-- GAME + SIDE ADS -->
-<div class="game-layout">
-
-  <!-- GAME -->
-  <canvas id="game" width="400" height="400"></canvas>
-
+  <select onchange="setTheme(this.value)">
+    <option value="classic">Classic</option>
+    <option value="neon">Neon</option>
+    <option value="dark">Dark</option>
+  </select>
 </div>
 
-     
+<!-- GAME -->
+<div class="game-layout">
+  <canvas id="game" width="400" height="400"></canvas>
+</div>
+
+<!-- CONTROLS -->
 <div class="controls">
-  <div><button onclick="setDir('UP')">⬆</button></div>
+  <div>
+    <button onclick="setDir('UP')">⬆</button>
+  </div>
   <div>
     <button onclick="setDir('LEFT')">⬅</button>
     <button onclick="setDir('DOWN')">⬇</button>
@@ -83,9 +109,9 @@ High: <span id="highScore">0</span>
   </div>
 </div>
 
-<p style="max-width:600px;margin:20px auto;font-size:14px;color:#cbd5f5;">
+<p class="footer-text">
 This is a free browser-based Snake game created as an independent project.
-Play instantly without downloads. Ads help keep the game free.
+Play instantly without downloads. Ads and donations help keep the game free.
 </p>
 
 <!-- Sounds -->
